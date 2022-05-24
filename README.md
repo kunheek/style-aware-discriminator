@@ -101,6 +101,33 @@ python -m tools.similarity_search --checkpoint CKPT --query QUERY_IMAGE --target
 - [*FFHQ*](https://github.com/NVlabs/ffhq-dataset) datasets can be downloaded [here](https://github.com/NVlabs/ffhq-dataset#download-script)
 - [*LSUN*](https://www.yf.io/p/lsun) *churches* can be downloaded [here](https://github.com/fyu/lsun)
 
+By default, all images in the folder will be used for training or evaluation (supported image formats can be found [here](mylib/misc.py#L5)). For example, if you parse `--train-dataset=./datasets/afhq/train`, all images in the `./datasets/afhq/train` folder will be used for training.  
+For LSUN datasets, `lsun` must be included in the folder path.  
+```
+datasets
+└─ lsun
+   ├─ church_outdoor_train_lmdb
+   └─ church_outdoor_val_lmdb
+```
+
+To measure `mean fid`, a subdirectory corresponding to each class must exist (less than 5). If you want to reproduce experiments in the paper, we recommend to use the following structure:
+```
+datasets
+├─ afhq
+│  ├─ train
+│  │  ├─ cat
+│  │  ├─ dog
+│  │  └─ wild
+│  └─ val (or test)
+│     └─ (cat/dog/wild)
+└─ celeba_hq
+   ├─ train
+   │  ├─ female
+   │  └─ male
+   └─ val
+      └─ (female/male)
+```
+
 ### Training scripts
 **Notice**: We recommend training networks on a single GPU with enough memory (*e.g.*, A100) to obtain best results, since we observed performance degradation with current implementation when using multiple GPUs (DDP). For example, a model trained on a A100 GPU (40GB) is slightly better than a model trained on two TITAN XP GPU (12GB * 2). We used a single NVIDIA A100 GPU for AFHQ and CelebA-HQ experiments and four NVIDIA RTX3090 GPUs for AFHQ v2, LSUN churches, and FFHQ experiments. Note that we disabled [tf32](https://pytorch.org/docs/stable/notes/cuda.html#tensorfloat-32-tf32-on-ampere-devices) for all experiments.
 
@@ -140,6 +167,6 @@ Many of our implementations are adapted from previous works, including [SwAV](ht
 
 
 ## Licenses
-All material in this repository is made available under the [MIT License](LICENSE).
+All materials except custom CUDA kernels in this repository are made available under the [MIT License](LICENSE).
 
 The custom CUDA kernels ([fused_bias_act_kernel.cu](model/networks/stylegan2_op/fused_bias_act_kernel.cu) and [upfirdn2d_kernel.cu](model/networks/stylegan2_op/upfirdn2d_kernel.cu)) are under the [Nvidia Source Code License](https://nvlabs.github.io/stylegan2/license.html), and are for non-commercial use only.
