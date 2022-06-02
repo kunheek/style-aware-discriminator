@@ -4,8 +4,6 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-import seaborn as sns
 import torch
 from sklearn.manifold import TSNE
 
@@ -20,7 +18,7 @@ def parse_args():
     parser.add_argument("--target-dataset", required=True)
     parser.add_argument("--seed", type=int)
     parser.add_argument("--title")
-    parser.add_argument("--legends", nargs="+", default=[])
+    parser.add_argument("--labels", nargs="+", default=[])
     parser.add_argument("--batch-size", type=int, default=32)
     args = parser.parse_args()
     assert os.path.isfile(args.checkpoint)
@@ -28,7 +26,7 @@ def parse_args():
     return args
 
 
-def plot_tsne(model, dataset, seed, filename, title, legends, batch_size):
+def plot_tsne(model, dataset, seed, filename, title, labels, batch_size):
     dataset.return_target = True
     device = model.device
     loader = torch.utils.data.DataLoader(dataset, batch_size)
@@ -45,33 +43,45 @@ def plot_tsne(model, dataset, seed, filename, title, legends, batch_size):
 
     style_codes = np.concatenate(style_codes)
     targets = np.concatenate(targets)
+    legends = len(np.unique(targets)) == len(labels)
 
     prototypes = model.prototypes_ema[0].weight.cpu().numpy()
-    proto_targets = np.zeros((prototypes.shape[0],), dtype=np.int32) - 1
+    proto_target = np.max(targets) + 1
+    proto_targets = np.zeros((prototypes.shape[0],), dtype=np.int32)
+    proto_targets += proto_target
 
-    style_codes = np.vstack((style_codes, prototypes))
+    features = np.vstack((style_codes, prototypes))
     targets = np.concatenate((targets, proto_targets))
-    labels = np.unique(targets)
-    print(style_codes.shape, targets.shape)
+    if legends:
+        labels.append("prototype")
+    else:
+        labels = np.unique(targets)
+    print(features.shape, targets.shape, labels)
 
-    tsne = TSNE(n_components=2, random_state=seed)
-    z = tsne.fit_transform(style_codes)
+    tsne = TSNE(
+        n_components=2,
+        learning_rate="auto",
+        random_state=seed,
+        init="pca",
+    )
+    z = tsne.fit_transform(features)
 
-    df = pd.DataFrame()
-    df["y"] = targets
-    df["y"] = df["y"].apply(str)
-    if len(legends) + 1 == len(labels):
-        for i, label in enumerate(legends):
-            df.loc[df["y"] == str(i), "y"] = label
-    df.loc[df["y"] == "-1", "y"] = "prototypes"
-    df["comp-1"] = z[:, 0]
-    df["comp-2"] = z[:, 1]
-    sns.scatterplot(
-        x="comp-1", y="comp-2", hue=df.y.tolist(),
-        palette=sns.color_palette("hls", len(labels)),
-        data=df,
-    ).set(title="T-SNE projection" if title is None else title)
+    plt.subplots(figsize=(10, 8))
+    colors = "salmon", "cornflowerblue", "seagreen"
+    for i, l in enumerate(labels):
+        if l in (proto_target, "prototype"):
+            c, m, a, ec = "k", "X", 1.0, None
+        else:
+            c, m, a, ec = colors[i], "o", 0.8, "w"
+
+        x, y = z[np.where(targets==i)].T
+        plt.scatter(x, y, 100, c=c, marker=m, alpha=a, edgecolors=ec, label=l)
+
     plt.axis("off")
+    if legends:
+        plt.legend()
+    if title is not None:
+        plt.title(title)
     plt.savefig(filename)
     plt.close("all")
 
@@ -93,16 +103,15 @@ def main():
     transform = SimpleTransform(opts.image_size)
     target_dataset = data.get_dataset(args.target_dataset, transform)
 
-    out_dir = os.path.join(opts.run_dir, "tsne")
-    os.makedirs(out_dir, exist_ok=True)
-    filename = os.path.join(out_dir, "tsne.png")
+    os.makedirs(opts.run_dir, exist_ok=True)
+    filename = os.path.join(opts.run_dir, "tsne.png")
     plot_tsne(
         model=model,
         dataset=target_dataset,
         seed=args.seed,
         filename=filename,
         title=args.title,
-        legends=args.legends,
+        labels=args.labels,
         batch_size=args.batch_size,
     )
 

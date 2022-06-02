@@ -15,7 +15,6 @@ dependencies:
   - pip:
     - clean-fid==0.1.21
     - opencv-python-headless
-    - seaborn
     - tensorboard
     - packaging
     - lmdb
