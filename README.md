@@ -29,17 +29,31 @@ pip install -r requirements.txt
 ```
 
 ## Testing and Evaluation
-We provide pre-trained checkpoints. If you have `wget` and `unzip` in your environment, you can download them using the following command:
+We provide the following pre-trained networks.
+
+|                    | Dataset     | Resolution | Method    | #images | OneDrive link |
+|--------------------|-------------|------------|-----------|---------|---------|
+| afhq-adain         | AFHQ        | $256^2$    | AdaIN     | 1.6 M   | [afhq-adain.pt](https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/Ecd6a64y6ZVCnpdLXB7Fb4sBiCpG48m2ncxAKR_aJpLWzA?e=1NTn3r) |
+| afhq-stylegan2     | AFHQ        | $256^2$    | StyleGAN2 | 5 M     | [afhq-stylegan2-5M.pt](https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/EX0JEvsGdQtJi-SeldrsMfUBngby8yxx_76pX2c8wtQidA?e=TmIRkC) |
+| afhqv2             | AFHQ v2     | $512^2$    | StyleGAN2 | 5 M     | [afhqv2-512x512-5M.pt](https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/Ec8tWDfZtK1Dmm_bw8azbi8BSfy_MUJkv8fbkE4_XxuhmQ?e=tNiGQp) |
+| celebahq-adain     | CelebA-HQ   | $256^2$    | AdaIN     | 1.6 M   | [celebahq-adain.pt](https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/EYOufvKpdMRDkavr2OfZbZwBiVN0XoksrtXEnn5krPh7UQ?e=7b3kzG) |
+| celebahq-stylegan2 | CelebA-HQ   | $256^2$    | StyleGAN2 | 5 M     | [celebahq-stylegan2-5M.pt](https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/EU8HgMXm9dNBj31LUIdc90kBQqEAJmmfkoAi4-BGRrzYAA?e=935Zrs) |
+| church             | LSUN church | $256^2$    | StyleGAN2 | 25 M    | [church-25M.pt](https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/Efn0z0mbDLZBobxByA6mKEEB-27zRfEprUt62-567oLWiQ?e=ZLM7YD) |
+| ffhq               | FFHQ        | $256^2$    | StyleGAN2 | 25 M    | [ffhq-25M.pt](https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/EfbsIjHka1JGsYHjRE2KrVEBwSjJ11ThbwKm5TVIpvUiAA?e=TgKMcP) |
+| flower             | Oxford 102  | $256^2$    | AdaIN     | 1.6 M   | [flower-256x256-adain.pt](https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/EeiK2iNEGMFPmYIsosF_D9ABd09_wN4MF3KCauLAQxgH0g?e=Jy5MJt) |
+
+Here are links to all checkpoints ([checkpoints.zip](https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/EVWyUG_advFLiaUbSOVSdMgBTleTw1hufu1583aCnuBK_w?e=eNF1q0)) and MD5 file([checkpoints.md5](https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/EUF8QeGwDBBFj5uwEabzKL8BGhp5bVWs5GtBey-Pw_DPcA?e=driDiN)).
+If you have `wget` and `unzip` in your environment, you can also download the checkpoints using the following command:
 ```sh
 # download all checkpoints.
 bash download.sh checkpoints
 # download a specific checkpoint.
 bash download.sh afhq-adain
 ```
-See [download.sh](download.sh) for available checkpoints.
+See the table above or [download.sh](download.sh) for available checkpoints.
 
 ### Quantitative results
-(Optional) Computing inception stats requires long time. We provide pre-calculated stats for AFHQ 256 and CelebA-HQ 256 datasets. You can download and register them using the following command:
+(Optional) Computing inception stats requires long time. We provide pre-calculated stats for AFHQ 256 and CelebA-HQ 256 datasets ([link](https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/ETssKsRsOA5HlxJlP2mlL24Bdjp1zhpWGjtzmmD1TkWmgg?e=CLBE0X)). You can download and register them using the following command:
 ```sh
 bash download.sh stats
 # python -m tools.register_stats PATH/TO/STATS
