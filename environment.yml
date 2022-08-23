@@ -1,0 +1,21 @@
+name: styled
+channels:
+  - pytorch
+dependencies:
+  - python=3.8
+  - pip
+  - pytorch=1.10.2
+  - torchvision
+  - cudatoolkit=11.3
+  - matplotlib
+  - ninja
+  - scikit-image
+  - scikit-learn
+  - tqdm
+  - pip:
+    - clean-fid==0.1.21
+    - opencv-python-headless
+    - tensorboard
+    - packaging
+    - lmdb
+    - lpips
