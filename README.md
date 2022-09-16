@@ -6,7 +6,7 @@ POSTECH
   <img src="assets/teaser.png">
 </p>
 
-> Our model discovers various style prototypes from the dataset in a self-supervised manner. The style prototype consists of a combination of varioius attributes including (left) time, weather, season, and texture; and (right) age, gender, and accessories.
+> Our model discovers various style prototypes from the dataset in a self-supervised manner. The style prototype consists of a combination of various attributes including (left) time, weather, season, and texture; and (right) age, gender, and accessories.
 
 > **Paper:** https://arxiv.org/abs/2203.15375
 
