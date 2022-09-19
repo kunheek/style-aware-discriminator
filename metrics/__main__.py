@@ -73,7 +73,7 @@ def main():
     torch.cuda.empty_cache()
 
     transform = SimpleTransform(opts.image_size)
-    eval_dataset = data.get_dataset(opts.eval_dataset, transform)
+    eval_dataset = data.build_dataset(opts.eval_dataset, transform)
 
     results = {"seed": opts.seed}
     for task in args.tasks:
@@ -81,7 +81,7 @@ def main():
         if evaluator.is_available():
             result = evaluator.evaluate(model, eval_dataset, step=step)
             results.update(result)
-    misc.report_metric(results, run_dir=opts.run_dir)
+    misc.report(results, run_dir=opts.run_dir, filename="metrics")
 
 
 if __name__ == "__main__":

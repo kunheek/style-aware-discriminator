@@ -7,5 +7,3 @@ matplotlib
 opencv-python-headless
 packaging
 scikit-image
-tensorboard
-tqdm

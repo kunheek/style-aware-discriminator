@@ -105,7 +105,7 @@ class DataPipe(torch.utils.data.IterableDataset):
             epoch += 1
 
 
-def get_dataset(root, transform, seed=None, repeat=False):
+def build_dataset(root, transform, seed=None, repeat=False):
     if "lsun" in root:
         dataset = LMDBDataset(root, transform)
     elif os.path.isdir(root):

@@ -101,7 +101,7 @@ def main():
     del model.optimizers
 
     transform = SimpleTransform(opts.image_size)
-    target_dataset = data.get_dataset(args.target_dataset, transform)
+    target_dataset = data.build_dataset(args.target_dataset, transform)
 
     os.makedirs(opts.run_dir, exist_ok=True)
     filename = os.path.join(opts.run_dir, "tsne.png")

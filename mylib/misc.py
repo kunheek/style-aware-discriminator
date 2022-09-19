@@ -59,10 +59,18 @@ def is_image_file(file):
     return file.split(".")[-1].lower() in IMG_EXTENSIONS
 
 
-def report_metric(result_dict, run_dir=None):
+def readable_time(seconds):
+    seconds = int(seconds)
+    hours = seconds // 3600 % 24
+    minutes = seconds // 60 % 60
+    seconds = seconds % 60
+    return f"{hours:03d}:{minutes:02d}:{seconds:02d}"
+
+
+def report(result_dict, run_dir=None, filename="report"):
     line = ",".join([f"{k}={v}" for k, v in result_dict.items()])
     print(line)
     if run_dir is not None and os.path.isdir(run_dir):
-        txtfile = os.path.join(run_dir, "metrics.txt")
+        txtfile = os.path.join(run_dir, f"{filename}.txt")
         with open(txtfile, "at") as f:
             f.writelines([line + "\n"])

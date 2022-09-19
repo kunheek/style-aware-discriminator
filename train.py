@@ -3,16 +3,21 @@ import argparse
 import json
 import os
 import random
+import time
 
 import torch
 import torch.distributed as dist
-from tqdm import tqdm
+
+try:
+    from tqdm import tqdm
+except:
+    def tqdm(iterator, *args, **kwargs): return iterator
 
 import data
 import metrics
-from mylib import misc, torch_utils
 from model import StyleAwareDiscriminator
 from model.augmentation import Augmentation, SimpleTransform
+from mylib import misc, torch_utils
 
 
 def parse_args():
@@ -92,6 +97,7 @@ def load_options(resume_dir):
 def training_loop(model, opts, rank, world_size):
     assert opts.batch_size % world_size == 0
     start_step, cur_nimg = 0, 0
+    start_time = time.time()
 
     checkpoint = torch_utils.load_checkpoint(opts.run_dir)
     if checkpoint is not None:
@@ -99,7 +105,7 @@ def training_loop(model, opts, rank, world_size):
         cur_nimg = checkpoint["nimg"]
         model.load(checkpoint)
 
-    datapipe = data.get_dataset(
+    datapipe = data.build_dataset(
         opts.train_dataset, Augmentation(**vars(opts)),
         seed=opts.seed, repeat=True,
     )
@@ -110,22 +116,17 @@ def training_loop(model, opts, rank, world_size):
     datastream = iter(datastream)
 
     eval_transform = SimpleTransform(opts.image_size)
-    val_dataset = data.get_dataset(opts.eval_dataset, eval_transform)
+    val_dataset = data.build_dataset(opts.eval_dataset, eval_transform)
 
     iters = opts.total_nimg // opts.batch_size
-    pbar = range(start_step+1, iters+1)
     if rank == 0:
-        # TODO: migrate to wandb.
         try:
             from torch.utils.tensorboard import SummaryWriter
             writer = SummaryWriter(opts.run_dir)
             tb = True
-        except:
+        except ImportError:
             print("Cannot import 'tensorboard'. Skip tensorboard logging.")
             tb = False
-
-        if opts.tqdm:
-            pbar = tqdm(pbar)
 
         # Save training options.
         with open(os.path.join(opts.run_dir, "options.json"), "w") as f:
@@ -145,19 +146,23 @@ def training_loop(model, opts, rank, world_size):
         knn_evaluator = metrics.KNNEvaluator(**vars(opts))
         mfid_evaluator = metrics.MeanFIDEvaluator(**vars(opts))
 
-    for step in pbar:
+    for step in tqdm(range(start_step+1, iters+1)):
         xs = next(datastream)
         xs = tuple(map(lambda x: x.to(rank, non_blocking=True), xs))
 
         model.set_input(step, xs)
-        loss = model.training_step()
+        loss_dict = model.training_step()
 
         if rank != 0:
             continue
 
-        if step%opts.log_freq==0 and tb:
-            for k, v in loss.items():
-                writer.add_scalar(k, v, step)
+        if step % opts.log_freq == 0:
+            if tb:
+                for k, v in loss_dict.items():
+                    writer.add_scalar(k, v, step)
+            elapsed = misc.readable_time(time.time() - start_time)
+            loss_dict["elapsed"] = elapsed
+            misc.report(loss_dict, run_dir=opts.run_dir, filename="log")
 
         if step % opts.snapshot_freq == 0:
             model.snapshot()
@@ -182,7 +187,7 @@ def training_loop(model, opts, rank, world_size):
                     if k == "step":
                         continue
                     writer.add_scalar("Metrics/"+k, v, step)
-            misc.report_metric(result_dict, opts.run_dir)
+            misc.report(result_dict, run_dir=opts.run_dir, filename="metrics")
 
         if step%opts.save_freq==0 or step==iters or is_best:
             fname = f"networks-{cur_nimg//1000:05d}k.pt"
