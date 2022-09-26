@@ -69,7 +69,7 @@ def main():
 
     model = StyleAwareDiscriminator(opts)
     model.load(checkpoint)
-    del model.optimizers  # NOTE: we don't need optimizers here.
+    del model.optimizer  # NOTE: we don't need optimizer here.
     torch.cuda.empty_cache()
 
     transform = SimpleTransform(opts.image_size)

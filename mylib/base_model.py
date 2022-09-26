@@ -1,9 +1,12 @@
+from typing import Iterable
+
 import torch
+import torch.nn as nn
 
 from mylib import torch_utils
 
 
-class BaseModel(torch.nn.Module):
+class BaseModel(nn.Module):
     def __init__(self, options):
         super().__init__()
         assert hasattr(options, "run_dir")
@@ -20,13 +23,13 @@ class BaseModel(torch.nn.Module):
         self._create_networks()
         self._create_criterions()
         self._configure_gpu()
-        self._create_optimizers()
+        self._create_optimizer()
 
     def _create_networks(self):
         raise NotImplementedError
 
     def _create_criterions(self):
-        self.optimizers = {}
+        pass
 
     def _configure_gpu(self):
         self.device = torch.device(self.rank)
@@ -34,7 +37,7 @@ class BaseModel(torch.nn.Module):
         if self.world_size > 1:
             for name, module in self.named_children():
                 if torch_utils.count_parameters(module) > 0:
-                    module = torch.nn.parallel.DistributedDataParallel(
+                    module = nn.parallel.DistributedDataParallel(
                         module,
                         device_ids=[self.rank],
                         broadcast_buffers=False,
@@ -42,22 +45,32 @@ class BaseModel(torch.nn.Module):
                     )
                     setattr(self, name, module)
 
-    def _create_optimizers(self):
+    def _create_optimizer(self):
         raise NotImplementedError
 
     def training_step(self, *args, **kwargs):
         raise NotImplementedError
 
-    def get_state(self, **kwargs):
+    def get_state(self, ignore=None, **kwargs):
+        if ignore is None or isinstance(ignore, str):
+            ignore = (ignore,)
+        elif not isinstance(ignore, Iterable):
+            raise ValueError("ignore should string or iterable.")
+
         state = {"options": self.opt}
         state.update(**kwargs)
 
         for name, net in self.named_children():
+            if name in ignore:
+                continue
             net = net.module if hasattr(net, "module") else net
             state[name+"_state_dict"] = net.state_dict()
 
-        for name, optim in self.optimizers.items():
-            state[name+"_optimizer"] = optim.state_dict()
+        if isinstance(self.optimizer, torch.optim.Optimizer):
+            state["optimizer"] = self.optimizer.state_dict()
+        else:
+            for name, optim in self.optimizer.items():
+                state[name+"_optimizer"] = optim.state_dict()
         return state
 
     def load(self, checkpoint=None):
@@ -84,7 +97,7 @@ class BaseModel(torch.nn.Module):
             else:
                 print(f"\tFailed to load {key}")
 
-        for name, opt in self.optimizers.items():
+        for name, opt in self.optimizer.items():
             key = name + "_optimizer"
             if key in checkpoint.keys():
                 opt.load_state_dict(checkpoint[key])

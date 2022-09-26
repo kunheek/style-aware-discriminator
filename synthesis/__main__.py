@@ -65,7 +65,7 @@ def main():
 
     model = StyleAwareDiscriminator(opts)
     model.load(checkpoint)
-    del model.optimizers
+    del model.optimizer
     torch.cuda.empty_cache()
 
     for task in args.tasks:

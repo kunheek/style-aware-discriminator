@@ -54,7 +54,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def options_from_args(args):
+def option_from_args(args):
     if args.seed is None:
         args.seed = random.randint(0, 999)
 
@@ -84,56 +84,52 @@ def options_from_args(args):
     return args
 
 
-def load_options(resume_dir):
-    option_file = os.path.join(resume_dir, "options.json")
+def load_option(resume_dir):
+    option_file = os.path.join(resume_dir, "option.json")
     assert os.path.isfile(option_file)
     with open(option_file, "r") as f:
-        options_dict = json.load(f)
-    options = argparse.Namespace(**options_dict)
-    options.run_dir = resume_dir
-    return options
+        option_dict = json.load(f)
+    option = argparse.Namespace(**option_dict)
+    option.run_dir = resume_dir
+    return option
 
 
-def training_loop(model, opts, rank, world_size):
-    assert opts.batch_size % world_size == 0
+def training_loop(model, opt, rank, world_size):
+    assert opt.batch_size % world_size == 0
     start_step, cur_nimg = 0, 0
     start_time = time.time()
 
-    checkpoint = torch_utils.load_checkpoint(opts.run_dir)
+    checkpoint = torch_utils.load_checkpoint(opt.run_dir)
     if checkpoint is not None:
         start_step = checkpoint["step"]
         cur_nimg = checkpoint["nimg"]
         model.load(checkpoint)
 
     datapipe = data.build_dataset(
-        opts.train_dataset, Augmentation(**vars(opts)),
-        seed=opts.seed, repeat=True,
+        opt.train_dataset, Augmentation(**vars(opt)),
+        seed=opt.seed, repeat=True,
     )
     datastream = torch.utils.data.DataLoader(
-        datapipe, batch_size=opts.batch_size // world_size,
-        num_workers=opts.num_workers, pin_memory=True,
+        datapipe, batch_size=opt.batch_size // world_size,
+        num_workers=opt.num_workers, pin_memory=True,
     )
     datastream = iter(datastream)
 
-    eval_transform = SimpleTransform(opts.image_size)
-    val_dataset = data.build_dataset(opts.eval_dataset, eval_transform)
+    eval_transform = SimpleTransform(opt.image_size)
+    val_dataset = data.build_dataset(opt.eval_dataset, eval_transform)
 
-    iters = opts.total_nimg // opts.batch_size
+    iters = opt.total_nimg // opt.batch_size
     if rank == 0:
         try:
             from torch.utils.tensorboard import SummaryWriter
-            writer = SummaryWriter(opts.run_dir)
+            writer = SummaryWriter(opt.run_dir)
             tb = True
         except ImportError:
             print("Cannot import 'tensorboard'. Skip tensorboard logging.")
             tb = False
 
-        # Save training options.
-        with open(os.path.join(opts.run_dir, "options.json"), "w") as f:
-            json.dump(vars(opts), f, indent=4)
-
         # Log number of parameters.
-        with open(os.path.join(opts.run_dir, "log.txt"), "w") as f:
+        with open(os.path.join(opt.run_dir, "log.txt"), "w") as f:
             lines = ["#Parameters\n"]
             for n, m in model.named_children():
                 lines.append(f"{n:>20}: {torch_utils.count_parameters(m)}\n")
@@ -143,8 +139,8 @@ def training_loop(model, opts, rank, world_size):
         best_fid = float("inf")
         model.prepare_snapshot(val_dataset)
 
-        knn_evaluator = metrics.KNNEvaluator(**vars(opts))
-        mfid_evaluator = metrics.MeanFIDEvaluator(**vars(opts))
+        knn_evaluator = metrics.KNNEvaluator(**vars(opt))
+        mfid_evaluator = metrics.MeanFIDEvaluator(**vars(opt))
 
     for step in tqdm(range(start_step+1, iters+1)):
         xs = next(datastream)
@@ -156,27 +152,27 @@ def training_loop(model, opts, rank, world_size):
         if rank != 0:
             continue
 
-        if step % opts.log_freq == 0:
+        if step % opt.log_freq == 0:
             if tb:
                 for k, v in loss_dict.items():
                     writer.add_scalar(k, v, step)
             elapsed = misc.readable_time(time.time() - start_time)
             loss_dict["elapsed"] = elapsed
-            misc.report(loss_dict, run_dir=opts.run_dir, filename="log")
+            misc.report(loss_dict, run_dir=opt.run_dir, filename="log")
 
-        if step % opts.snapshot_freq == 0:
+        if step % opt.snapshot_freq == 0:
             model.snapshot()
 
-        cur_nimg = step * opts.batch_size
+        cur_nimg = step * opt.batch_size
         is_best = False
-        if step % opts.eval_freq == 0:
+        if step % opt.eval_freq == 0:
             result_dict = {"step": step, "nimg": f"{cur_nimg//1000}k"}
 
             if knn_evaluator.is_available():
                 knn_dict = knn_evaluator.evaluate(model, step=step)
                 result_dict.update(knn_dict)
 
-            if mfid_evaluator.is_available() and step > opts.fid_start_after:
+            if mfid_evaluator.is_available() and step > opt.fid_start_after:
                 fid_dict = mfid_evaluator.evaluate(model)
                 is_best = fid_dict["mFID"] < best_fid
                 best_fid = min(best_fid, fid_dict["mFID"])
@@ -187,20 +183,22 @@ def training_loop(model, opts, rank, world_size):
                     if k == "step":
                         continue
                     writer.add_scalar("Metrics/"+k, v, step)
-            misc.report(result_dict, run_dir=opts.run_dir, filename="metrics")
+            misc.report(result_dict, run_dir=opt.run_dir, filename="metrics")
 
-        if step%opts.save_freq==0 or step==iters or is_best:
-            fname = f"networks-{cur_nimg//1000:05d}k.pt"
-            fname = os.path.join(opts.run_dir, fname)
-            torch.save(model.get_state(step=step, nimg=cur_nimg), fname)
+        if step%opt.save_freq==0 or step==iters or is_best:
+            filename = f"networks-{cur_nimg//1000:05d}k.pt"
+            filename = os.path.join(opt.run_dir, filename)
+            extra_state = {"step": step, "nimg": cur_nimg}
+            state = model.get_state(ignore="recon_loss", **extra_state)
+            torch.save(state, filename)
 
 
 def main():
     args = parse_args()
     if args.resume is None:
-        options = options_from_args(args)
+        options = option_from_args(args)
     else:
-        options = load_options(args.resume)
+        options = load_option(args.resume)
         print(f"resume training '{args.resume}'")
 
     if "LOCAL_RANK" not in os.environ.keys():
@@ -220,6 +218,9 @@ def main():
     if rank == 0:
         filename = os.path.join(options.run_dir, "code")
         misc.archive_python_files(os.getcwd(), filename)
+        # Save training options.
+        with open(os.path.join(options.run_dir, "option.json"), "w") as f:
+            json.dump(vars(options), f, indent=4)
 
     if world_size > 1:
         dist.init_process_group("nccl", rank=rank, world_size=world_size)

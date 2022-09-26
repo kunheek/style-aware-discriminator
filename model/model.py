@@ -108,23 +108,23 @@ class StyleAwareDiscriminator(mylib.BaseModel):
         self.swapped_prediction = SwappedPredictionLoss(opt.temperature)
         self.recon_loss = ReconstructionLoss(opt.recon)
 
-    def _create_optimizers(self):
+    def _create_optimizer(self):
         opt = self.opt
-        self.optimizers = {}
+        self.optimizer = {}
 
         c = 1.0
         if opt.cnt_preserv_freq > 0:
             c = opt.cnt_preserv_freq / (1. + opt.cnt_preserv_freq)
-        self.optimizers["G"] = torch.optim.Adam(
+        self.optimizer["G"] = torch.optim.Adam(
             self.G.parameters(), lr=opt.lr * c,
             betas=(opt.beta1 ** c, opt.beta2 ** c)
         )
-        self.optimizers["G"].zero_grad(set_to_none=True)
+        self.optimizer["G"].zero_grad(set_to_none=True)
 
         c = 1.0
         if opt.lambda_r1 > 0.0 and opt.lazy_r1_freq > 0:
             c = opt.lazy_r1_freq / (1. + opt.lazy_r1_freq)
-        self.optimizers["D"] = torch.optim.Adam(
+        self.optimizer["D"] = torch.optim.Adam(
             [
                 {"params": self.D.parameters()},
                 {
@@ -133,7 +133,7 @@ class StyleAwareDiscriminator(mylib.BaseModel):
                 },
             ], lr=opt.lr * c, betas=(opt.beta1 ** c, opt.beta2 ** c)
         )
-        self.optimizers["D"].zero_grad(set_to_none=True)
+        self.optimizer["D"].zero_grad(set_to_none=True)
 
     def forward(self, input, target, heatmap=None, return_codes=False):
         assert isinstance(target, torch.Tensor) and target.dim() in (2, 4)
@@ -165,7 +165,7 @@ class StyleAwareDiscriminator(mylib.BaseModel):
             and step % self.opt.cnt_preserv_freq == 0
 
         # adjust_learning_rate
-        for optim in self.optimizers.values():
+        for optim in self.optimizer.values():
             warmup_learning_rate(
                 optim, self.opt.lr, step, self.opt.warmup_step,
             )
@@ -210,8 +210,8 @@ class StyleAwareDiscriminator(mylib.BaseModel):
         (loss_adv + self.opt.lambda_swap * loss_swap).backward()
         if self.freeze_prototypes:
             self.prototypes.zero_grad(set_to_none=True)
-        self.optimizers["D"].step()
-        self.optimizers["D"].zero_grad(set_to_none=True)
+        self.optimizer["D"].step()
+        self.optimizer["D"].zero_grad(set_to_none=True)
         self.prototypes(command="normalize")
 
         # Compute the R1 gradient penalty.
@@ -225,8 +225,8 @@ class StyleAwareDiscriminator(mylib.BaseModel):
             lazy_r1.backward()
             self.loss["Loss/R1"] = lazy_r1.detach()
 
-            self.optimizers["D"].step()
-            self.optimizers["D"].zero_grad(set_to_none=True)
+            self.optimizer["D"].step()
+            self.optimizer["D"].zero_grad(set_to_none=True)
         return styles[0].detach()
 
     def _update_generator(self, x_fake, cnt_real, sty_org, sty_ref):
@@ -253,8 +253,8 @@ class StyleAwareDiscriminator(mylib.BaseModel):
             + self.opt.lambda_rec * loss_rec \
             + self.opt.lambda_sty * loss_sty
         loss.backward()
-        self.optimizers["G"].step()
-        self.optimizers["G"].zero_grad(set_to_none=True)
+        self.optimizer["G"].step()
+        self.optimizer["G"].zero_grad(set_to_none=True)
 
         if self.do_content_preserving:
             mask = self.generate_mask(size=self.opt.cnt_res)
@@ -273,8 +273,8 @@ class StyleAwareDiscriminator(mylib.BaseModel):
             loss_cnt = sim.mean((1,2)).mean()  
             loss_cnt.backward()
             self.loss["Loss/content"] = loss_cnt.detach()
-            self.optimizers["G"].step()
-            self.optimizers["G"].zero_grad(set_to_none=True)
+            self.optimizer["G"].step()
+            self.optimizer["G"].zero_grad(set_to_none=True)
 
     def _update_average(self):
         if self.rank == 0:

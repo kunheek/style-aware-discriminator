@@ -51,5 +51,5 @@ class SwapSynthesizer(BaseSynthesizer):
             grid.append(outputs)
 
         grid = torch.cat(grid)
-        nrow=style_images.size(0) + 1
+        nrow = style_images.size(0) + 1
         self.save_image(grid, self.filename, nrow=nrow)

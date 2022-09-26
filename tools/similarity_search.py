@@ -89,7 +89,7 @@ def main():
 
     model = StyleAwareDiscriminator(opts)
     model.load(checkpoint)
-    del model.optimizers
+    del model.optimizer
 
     transform = SimpleTransform(opts.image_size)
     target_dataset = data.build_dataset(args.target_dataset, transform)
