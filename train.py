@@ -51,7 +51,6 @@ def parse_args():
     # Misc.
     parser.add_argument("--allow-tf32", type=misc.str2bool, default=False)
     parser.add_argument("--cudnn-bench", type=misc.str2bool, default=True)
-    parser.add_argument("--tqdm", type=misc.str2bool, default=True)
     return parser.parse_args()
 
 
