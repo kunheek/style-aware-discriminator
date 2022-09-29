@@ -46,6 +46,7 @@ def parse_args():
     parser.add_argument("--eval-freq", type=int, default=10000)
     parser.add_argument("--save-freq", type=int, default=10000)
     # Evaluations.
+    parser.add_argument("--evaluation", type=misc.str2bool, default=True)
     parser.add_argument("--fid-start-after", type=int, default=10000)
     # Misc.
     parser.add_argument("--allow-tf32", type=misc.str2bool, default=False)
@@ -109,11 +110,11 @@ def training_loop(model, opt, rank, world_size):
         opt.train_dataset, Augmentation(**vars(opt)),
         seed=opt.seed, repeat=True,
     )
-    datastream = torch.utils.data.DataLoader(
+    dataloader = torch.utils.data.DataLoader(
         datapipe, batch_size=opt.batch_size // world_size,
         num_workers=opt.num_workers, pin_memory=True,
     )
-    datastream = iter(datastream)
+    dataiter = iter(dataloader)
 
     eval_transform = SimpleTransform(opt.image_size)
     val_dataset = data.build_dataset(opt.eval_dataset, eval_transform)
@@ -139,11 +140,12 @@ def training_loop(model, opt, rank, world_size):
         best_fid = float("inf")
         model.prepare_snapshot(val_dataset)
 
-        knn_evaluator = metrics.KNNEvaluator(**vars(opt))
-        mfid_evaluator = metrics.MeanFIDEvaluator(**vars(opt))
+        if opt.evaluation:
+            knn_evaluator = metrics.KNNEvaluator(**vars(opt))
+            mfid_evaluator = metrics.MeanFIDEvaluator(**vars(opt))
 
     for step in tqdm(range(start_step+1, iters+1)):
-        xs = next(datastream)
+        xs = next(dataiter)
         xs = tuple(map(lambda x: x.to(rank, non_blocking=True), xs))
 
         model.set_input(step, xs)
@@ -165,7 +167,7 @@ def training_loop(model, opt, rank, world_size):
 
         cur_nimg = step * opt.batch_size
         is_best = False
-        if step % opt.eval_freq == 0:
+        if opt.evaluation and (step % opt.eval_freq == 0):
             result_dict = {"step": step, "nimg": f"{cur_nimg//1000}k"}
 
             if knn_evaluator.is_available():
