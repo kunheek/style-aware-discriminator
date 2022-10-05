@@ -2,6 +2,7 @@ import os
 
 import torch
 
+from mylib.misc import str2bool
 from .base_synthesizer import BaseSynthesizer
 
 
@@ -9,7 +10,12 @@ class SwapSynthesizer(BaseSynthesizer):
 
     @staticmethod
     def add_commandline_args(parser):
+        parser.add_argument("--save-each", type=str2bool, default=False)
         return parser
+
+    def __init__(self, save_each, **kwargs):
+        self.save_each = save_each
+        super().__init__(**kwargs)
 
     def prepare_synthesis(self):
         print("Preparing swapping visualization ...")
@@ -52,4 +58,13 @@ class SwapSynthesizer(BaseSynthesizer):
 
         grid = torch.cat(grid)
         nrow = style_images.size(0) + 1
+        if self.save_each:
+            i, j = 0, 1
+            for image in grid[1:]:
+                filename = self.filename.replace("grid", f"{i}_{j}")
+                self.save_image(image, filename, nrow=1)
+                j += 1
+                if j == nrow:
+                    i += 1
+                    j = 0
         self.save_image(grid, self.filename, nrow=nrow)
