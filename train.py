@@ -7,6 +7,7 @@ import time
 
 import torch
 import torch.distributed as dist
+from torchinfo import summary
 
 try:
     from tqdm import tqdm
@@ -128,12 +129,11 @@ def training_loop(model, opt, rank, world_size):
             print("Cannot import 'tensorboard'. Skip tensorboard logging.")
             tb = False
 
-        # Log number of parameters.
+        # Log model summary.
         with open(os.path.join(opt.run_dir, "log.txt"), "w") as f:
             lines = ["#Parameters\n"]
             for n, m in model.named_children():
-                lines.append(f"{n:>20}: {torch_utils.count_parameters(m)}\n")
-            print("".join(lines))
+                lines.append(f"{n}:\n{summary(m)}\n\n")
             f.writelines(lines)
 
         best_fid = float("inf")
@@ -197,9 +197,9 @@ def training_loop(model, opt, rank, world_size):
 def main():
     args = parse_args()
     if args.resume is None:
-        options = option_from_args(args)
+        option = option_from_args(args)
     else:
-        options = load_option(args.resume)
+        option = load_option(args.resume)
         print(f"resume training '{args.resume}'")
 
     if "LOCAL_RANK" not in os.environ.keys():
@@ -210,31 +210,31 @@ def main():
 
     print(f"=> set cuda device = {rank}")
     torch.cuda.set_device(rank)
-    print(f"=> allow tf32 = {options.allow_tf32}")
-    torch.backends.cuda.matmul.allow_tf32 = options.allow_tf32
-    torch.backends.cudnn.allow_tf32 = options.allow_tf32
-    print(f"=> cuDNN benchmark = {options.cudnn_bench}")
-    torch.backends.cudnn.benchmark = options.cudnn_bench
+    print(f"=> allow tf32 = {option.allow_tf32}")
+    torch.backends.cuda.matmul.allow_tf32 = option.allow_tf32
+    torch.backends.cudnn.allow_tf32 = option.allow_tf32
+    print(f"=> cuDNN benchmark = {option.cudnn_bench}")
+    torch.backends.cudnn.benchmark = option.cudnn_bench
 
     if rank == 0:
-        filename = os.path.join(options.run_dir, "code")
+        filename = os.path.join(option.run_dir, "code")
         misc.archive_python_files(os.getcwd(), filename)
         # Save training options.
-        with open(os.path.join(options.run_dir, "option.json"), "w") as f:
-            json.dump(vars(options), f, indent=4)
+        with open(os.path.join(option.run_dir, "option.json"), "w") as f:
+            json.dump(vars(option), f, indent=4)
 
     if world_size > 1:
         dist.init_process_group("nccl", rank=rank, world_size=world_size)
         # Sync options across devices (required for seed and run_dir).
-        broadcast_opts = [options]
+        broadcast_opts = [option]
         dist.broadcast_object_list(broadcast_opts)
-        options = broadcast_opts[0]
+        option = broadcast_opts[0]
 
-    print(f"=> random seed = {options.seed}")
-    torch_utils.set_seed(options.seed)
+    print(f"=> random seed = {option.seed}")
+    torch_utils.set_seed(option.seed)
 
-    model = StyleAwareDiscriminator(options)
-    training_loop(model, options, rank, world_size)
+    model = StyleAwareDiscriminator(option)
+    training_loop(model, option, rank, world_size)
 
 
 if __name__ == "__main__":

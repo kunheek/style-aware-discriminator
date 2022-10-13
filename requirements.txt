@@ -7,3 +7,4 @@ matplotlib
 opencv-python-headless
 packaging
 scikit-image
+torchinfo

@@ -15,15 +15,6 @@ def concat_all_gather(tensor, world_size):
     return output
 
 
-def count_parameters(module):
-    assert isinstance(module, nn.Module)
-    num_params = 0
-    for p in module.parameters():
-        if p.requires_grad:
-            num_params += p.numel()
-    return num_params
-
-
 def kaiming_init(mod):
     assert isinstance(mod, nn.Module)
     if isinstance(mod, (nn.Conv2d, nn.Linear)):
