@@ -59,7 +59,7 @@ def main():
 
     # Override options.
     for k, v in vars(args).items():
-        if hasattr(opts, k) and (v is not None):
+        if v is not None:
             setattr(opts, k, v)
 
     torch.backends.cuda.matmul.allow_tf32 = False
