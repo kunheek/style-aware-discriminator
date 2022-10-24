@@ -59,7 +59,7 @@ def main():
 
     # Override options.
     for k, v in vars(args).items():
-        if hasattr(opts, k) and v is not None:
+        if hasattr(opts, k) and (v is not None):
             setattr(opts, k, v)
 
     torch.backends.cuda.matmul.allow_tf32 = False
@@ -77,7 +77,7 @@ def main():
 
     results = {"seed": opts.seed}
     for task in args.tasks:
-        evaluator = find_evaluator_using_name(task)(**vars(args))
+        evaluator = find_evaluator_using_name(task)(**vars(opts))
         if evaluator.is_available():
             result = evaluator.evaluate(model, eval_dataset, step=step)
             results.update(result)
