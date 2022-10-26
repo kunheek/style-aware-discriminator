@@ -44,7 +44,10 @@ class FIDEvaluator(BaseEvaluator):
         elif "ffhq" in self.eval_dataset:
             dataset = "ffhq"
         else:
-            raise ValueError
+            raise ValueError(
+                f"Unsupported dataset ({self.eval_dataset}). "
+                "Supported datasets are: AFHQ, CelebAHQ, LSUN_church, FFHQ"
+            )
         print(f"\tDataset: {dataset}")
 
         self.cleanfid_kwargs = {
