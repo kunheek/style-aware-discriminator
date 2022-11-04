@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
-import data
+import mylib.data as data
 from model.augmentation import SimpleTransform
 from .base_evaluator import BaseEvaluator
 

@@ -7,10 +7,9 @@ import torch
 import torch.nn.functional as F
 from PIL import Image
 
-import data
 from model import StyleAwareDiscriminator
 from model.augmentation import SimpleTransform
-from mylib import misc
+from mylib import data, misc
 
 
 def parse_args():

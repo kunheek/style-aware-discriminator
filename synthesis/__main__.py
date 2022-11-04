@@ -7,7 +7,7 @@ import torch
 
 import synthesis
 from model import StyleAwareDiscriminator
-from mylib import misc, torch_utils
+from mylib import misc
 
 
 def parse_args():
@@ -61,7 +61,7 @@ def main():
     print(f"=> cuDNN benchmark = {opts.cudnn_bench}")
     torch.backends.cudnn.benchmark = opts.cudnn_bench
     print(f"=> random seed = {opts.seed}")
-    torch_utils.set_seed(opts.seed)
+    misc.set_seed(opts.seed)
 
     model = StyleAwareDiscriminator(opts)
     model.load(checkpoint)

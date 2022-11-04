@@ -7,7 +7,7 @@ import numpy as np
 import torch
 from sklearn.manifold import TSNE
 
-import data
+import mylib.data as data
 from model import StyleAwareDiscriminator
 from model.augmentation import SimpleTransform
 

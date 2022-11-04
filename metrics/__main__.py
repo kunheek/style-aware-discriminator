@@ -5,9 +5,8 @@ import os
 
 import torch
 
-import data
 import metrics
-from mylib import misc, torch_utils
+from mylib import data, misc
 from model import StyleAwareDiscriminator
 from model.augmentation import SimpleTransform
 
@@ -65,7 +64,7 @@ def main():
     torch.backends.cuda.matmul.allow_tf32 = False
     torch.backends.cudnn.allow_tf32 = False
     torch.backends.cudnn.benchmark = False
-    torch_utils.set_seed(opts.seed)
+    misc.set_seed(opts.seed)
 
     model = StyleAwareDiscriminator(opts)
     model.load(checkpoint)

@@ -2,8 +2,7 @@ import torch
 from torchvision import transforms
 from torchvision.utils import make_grid
 
-import data
-from mylib import torch_utils
+from mylib import data, torch_utils
 
 
 class BaseSynthesizer:

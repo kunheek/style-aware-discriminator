@@ -14,11 +14,10 @@ try:
 except:
     def tqdm(iterator, *args, **kwargs): return iterator
 
-import data
 import metrics
 from model import StyleAwareDiscriminator
 from model.augmentation import Augmentation, SimpleTransform
-from mylib import misc, torch_utils
+from mylib import data, misc, torch_utils
 
 
 def parse_args():
@@ -231,7 +230,7 @@ def main():
         option = broadcast_opts[0]
 
     print(f"=> random seed = {option.seed}")
-    torch_utils.set_seed(option.seed)
+    misc.set_seed(option.seed)
 
     model = StyleAwareDiscriminator(option)
     training_loop(model, option, rank, world_size)

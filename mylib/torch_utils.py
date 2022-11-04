@@ -37,14 +37,6 @@ def load_checkpoint(run_dir):
     return checkpoint
 
 
-def set_seed(seed):
-    seed = int(seed)
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)  # This will seed all devices.
-    os.environ["PYTHONHASHSEED"] = str(seed)
-
-
 def unnormalize(image, to_uint8=False):
     # assert isinstance(image, torch.Tensor)
     if to_uint8:

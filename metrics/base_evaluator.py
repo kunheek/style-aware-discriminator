@@ -3,7 +3,7 @@ from torchvision import transforms
 from torchvision.transforms.functional import to_pil_image
 from torchvision.utils import make_grid
 
-import data
+import mylib.data as data
 
 
 class BaseEvaluator:

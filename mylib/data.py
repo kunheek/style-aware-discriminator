@@ -4,7 +4,7 @@ from typing import Sequence
 import numpy as np
 import torch
 from PIL import Image
-from torchvision.datasets import ImageFolder, LSUNClass
+from torchvision.datasets import LSUNClass
 
 from mylib import misc
 
@@ -51,13 +51,14 @@ class ImageFolder(torch.utils.data.Dataset):
         return (image, target) if self.return_target else image
 
 
-class LMDBDataset(LSUNClass):
-    def __init__(self, root, transform=None):
+class LMDB(LSUNClass):
+    def __init__(self, root, transform=None, return_target=False):
         super().__init__(root, transform)
+        self.return_target = return_target
 
     def __getitem__(self, index):
-        image, _ = super().__getitem__(index)
-        return image #, 0
+        image, target = super().__getitem__(index)
+        return (image, target) if self.return_target else image
 
 
 class DataPipe(torch.utils.data.IterableDataset):
@@ -107,7 +108,7 @@ class DataPipe(torch.utils.data.IterableDataset):
 
 def build_dataset(root, transform, seed=None, repeat=False):
     if "lsun" in root:
-        dataset = LMDBDataset(root, transform)
+        dataset = LMDB(root, transform)
     elif os.path.isdir(root):
         dataset = ImageFolder(root, transform)
     else:

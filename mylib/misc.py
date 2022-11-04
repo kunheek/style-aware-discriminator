@@ -1,8 +1,10 @@
+import importlib.util
 import os
+import random
 import shutil
 
 IMG_EXTENSIONS = (
-    'jpg', 'jpeg', 'png', 'ppm', 'bmp', 'pgm', 'tif', 'tiff', 'webp',
+    "jpg", "jpeg", "png", "ppm", "bmp", "pgm", "tif", "tiff", "webp",
 )
 
 
@@ -74,3 +76,15 @@ def report(result_dict, run_dir=None, filename="report"):
         txtfile = os.path.join(run_dir, f"{filename}.txt")
         with open(txtfile, "at") as f:
             f.writelines([line + "\n"])
+
+
+def set_seed(seed):
+    seed = int(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    random.seed(seed)
+    if importlib.util.find_spec("numpy") is not None:
+        import numpy as np
+        np.random.seed(seed)
+    if importlib.util.find_spec("torch") is not None:
+        import torch
+        torch.manual_seed(seed)
