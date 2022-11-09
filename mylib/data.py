@@ -61,13 +61,14 @@ class LMDB(LSUNClass):
         return (image, target) if self.return_target else image
 
 
-class DataPipe(torch.utils.data.IterableDataset):
-    def __init__(self, dataset, seed=0, shuffle=True, drop_last=True):
-        assert isinstance(dataset, (Sequence, torch.utils.data.Dataset))
-        self.data = dataset
-        self.seed = seed
-        self.shuffle = shuffle
+class Wrapper(torch.utils.data.IterableDataset):
+    def __init__(self, source, drop_last=True):
+        assert isinstance(source, (Sequence, torch.utils.data.Dataset))
+        self.source = source
         self.drop_last = drop_last
+        self._shuffle = False
+        self._seed = 0
+        self._count = 1
 
     def __iter__(self):
         if torch.distributed.is_initialized():
@@ -85,12 +86,12 @@ class DataPipe(torch.utils.data.IterableDataset):
             shift = shift * worker_info.num_workers + worker_info.id
 
         epoch = 0
-        keys = np.arange(len(self.data))
+        keys = np.arange(len(self.source))
         remainder = len(keys) % mod
 
-        while True:
-            if self.shuffle:
-                rng = np.random.default_rng(seed=self.seed + epoch)
+        while epoch < self._count:
+            if self._shuffle:
+                rng = np.random.default_rng(seed=self._seed+epoch)
                 rng.shuffle(keys)
 
             if remainder == 0:
@@ -101,18 +102,28 @@ class DataPipe(torch.utils.data.IterableDataset):
                 indices = np.concatenate((keys, keys[:mod-remainder]))
 
             for index in indices[shift::mod]:
-                yield self.data[index]
+                yield self.source[index]
 
             epoch += 1
 
+    def cycle(self, count=float("inf")):
+        self._count = count
+        return self
 
-def build_dataset(root, transform, seed=None, repeat=False):
+    def shuffle(self, mode=True, seed=None):
+        self._shuffle = mode
+        if isinstance(seed, int):
+            self._seed = seed
+        return self
+
+
+def build_dataset(root, transform, seed=None, cycle=False):
     if "lsun" in root:
         dataset = LMDB(root, transform)
     elif os.path.isdir(root):
         dataset = ImageFolder(root, transform)
     else:
         raise NotImplementedError(root)
-    if repeat:
-        dataset = DataPipe(dataset, seed)
+    if cycle:
+        dataset = Wrapper(dataset).shuffle(seed=seed).cycle()
     return dataset

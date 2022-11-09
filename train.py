@@ -105,12 +105,12 @@ def training_loop(model, opt, rank, world_size):
         cur_nimg = checkpoint["nimg"]
         model.load(checkpoint)
 
-    datapipe = data.build_dataset(
+    dataset = data.build_dataset(
         opt.train_dataset, Augmentation(**vars(opt)),
-        seed=opt.seed, repeat=True,
+        seed=opt.seed, cycle=True,
     )
     dataloader = torch.utils.data.DataLoader(
-        datapipe, batch_size=opt.batch_size // world_size,
+        dataset, batch_size=opt.batch_size // world_size,
         num_workers=opt.num_workers, pin_memory=True,
     )
     dataiter = iter(dataloader)
