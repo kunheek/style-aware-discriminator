@@ -94,29 +94,31 @@ def load_option(resume_dir):
     return option
 
 
-def training_loop(model, opt, rank, world_size):
+def training_loop(opt, model, rank, world_size):
     assert opt.batch_size % world_size == 0
+
+    # Initialize.
     start_step, cur_nimg = 0, 0
     start_time = time.time()
-
     checkpoint = torch_utils.load_checkpoint(opt.run_dir)
     if checkpoint is not None:
         start_step = checkpoint["step"]
         cur_nimg = checkpoint["nimg"]
         model.load(checkpoint)
 
-    dataset = data.build_dataset(
-        opt.train_dataset, Augmentation(**vars(opt)),
-        seed=opt.seed, cycle=True,
-    )
+    # Create a train data iterator.
+    train_transform = Augmentation(**vars(opt))
+    dataset = data.build_dataset(opt.train_dataset, train_transform)
+    dataset = data.Wrapper(dataset)  # for distributed training.
+    dataset = dataset.shuffle(seed=opt.seed).cycle()
     dataloader = torch.utils.data.DataLoader(
         dataset, batch_size=opt.batch_size // world_size,
         num_workers=opt.num_workers, pin_memory=True,
     )
     dataiter = iter(dataloader)
-
+    # Create dataset for evaluation.
     eval_transform = SimpleTransform(opt.image_size)
-    val_dataset = data.build_dataset(opt.eval_dataset, eval_transform)
+    eval_dataset = data.build_dataset(opt.eval_dataset, eval_transform)
 
     iters = opt.total_nimg // opt.batch_size
     if rank == 0:
@@ -136,7 +138,7 @@ def training_loop(model, opt, rank, world_size):
             f.writelines(lines)
 
         best_fid = float("inf")
-        model.prepare_snapshot(val_dataset)
+        model.prepare_snapshot(eval_dataset)
 
         if opt.evaluation:
             knn_evaluator = metrics.KNNEvaluator(**vars(opt))
@@ -233,7 +235,7 @@ def main():
     misc.set_seed(option.seed)
 
     model = StyleAwareDiscriminator(option)
-    training_loop(model, option, rank, world_size)
+    training_loop(option, model, rank, world_size)
 
 
 if __name__ == "__main__":

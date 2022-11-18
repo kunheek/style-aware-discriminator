@@ -66,9 +66,9 @@ class Wrapper(torch.utils.data.IterableDataset):
         assert isinstance(source, (Sequence, torch.utils.data.Dataset))
         self.source = source
         self.drop_last = drop_last
-        self._shuffle = False
-        self._seed = 0
         self._count = 1
+        self._seed = 0
+        self._shuffle = False
 
     def __iter__(self):
         if torch.distributed.is_initialized():
@@ -111,19 +111,17 @@ class Wrapper(torch.utils.data.IterableDataset):
         return self
 
     def shuffle(self, mode=True, seed=None):
-        self._shuffle = mode
         if isinstance(seed, int):
             self._seed = seed
+        self._shuffle = mode
         return self
 
 
-def build_dataset(root, transform, seed=None, cycle=False):
+def build_dataset(root, transform):
     if "lsun" in root:
         dataset = LMDB(root, transform)
     elif os.path.isdir(root):
         dataset = ImageFolder(root, transform)
     else:
         raise NotImplementedError(root)
-    if cycle:
-        dataset = Wrapper(dataset).shuffle(seed=seed).cycle()
     return dataset
