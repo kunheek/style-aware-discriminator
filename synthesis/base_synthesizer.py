@@ -36,7 +36,10 @@ class BaseSynthesizer:
             transforms.ToTensor(),
             transforms.Normalize(mean, std),
         ])
-        dataset = data.build_dataset(folder, transform, seed, repeat)
+        dataset = data.build_dataset(folder, transform)
+        if repeat:
+            dataset = data.Wrapper(dataset)
+            dataset = dataset.shuffle(seed=seed).cycle()
         return dataset
 
     def save_image(self, image, fname, unnormalize=True, nrow=None):
