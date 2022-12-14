@@ -25,7 +25,7 @@ def parse_args():
     parser = Augmentation.add_commandline_args(parser)
     parser = StyleAwareDiscriminator.add_commandline_args(parser)
     for k, v in metrics.__dict__.items():
-        if "Evaluator" in k:
+        if k.endswith("Evaluator"):
             parser = v.add_commandline_args(parser)
 
     parser.add_argument("--resume")
@@ -203,11 +203,8 @@ def main():
         option = load_option(args.resume)
         print(f"resume training '{args.resume}'")
 
-    if "LOCAL_RANK" not in os.environ.keys():
-        os.environ["LOCAL_RANK"] = "0"
-        os.environ["WORLD_SIZE"] = "1"
-    rank = int(os.environ["LOCAL_RANK"])
-    world_size = int(os.environ["WORLD_SIZE"])
+    rank = int(os.environ.get("LOCAL_RANK", "0"))
+    world_size = int(os.environ.get("WORLD_SIZE", "1"))
 
     print(f"=> set cuda device = {rank}")
     torch.cuda.set_device(rank)
