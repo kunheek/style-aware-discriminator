@@ -9,7 +9,9 @@ from torchvision.utils import save_image
 
 import mylib
 import mylib.misc as misc
-from mylib.torch_utils import unnormalize, update_average, warmup_learning_rate
+from mylib.torch_utils import (accumulate_weights, unnormalize,
+                               warmup_learning_rate)
+
 from .criterion import (ReconstructionLoss, SwappedPredictionLoss,
                         compute_grad_gp, get_adversarial_loss, mse_loss)
 from .networks import Generator, MultiPrototypes, StyleDiscriminator
@@ -181,7 +183,7 @@ class StyleAwareDiscriminator(mylib.BaseModel):
         self.loss.clear()
         sty_org = self._update_discriminator(x_fake)
         self._update_generator(x_fake, cnt_real, sty_org, sty_ref)
-        self._update_average()
+        self._accumulate_weights()
         return self.loss
 
     def _update_discriminator(self, x_fake):
@@ -276,11 +278,11 @@ class StyleAwareDiscriminator(mylib.BaseModel):
             self.optimizer["G"].step()
             self.optimizer["G"].zero_grad(set_to_none=True)
 
-    def _update_average(self):
+    def _accumulate_weights(self):
         if self.rank == 0:
-            update_average(self.G, self.G_ema)
-            update_average(self.D, self.D_ema)
-            update_average(self.prototypes, self.prototypes_ema)
+            accumulate_weights(self.G, self.G_ema)
+            accumulate_weights(self.D, self.D_ema)
+            accumulate_weights(self.prototypes, self.prototypes_ema)
             self.prototypes_ema.normalize()
 
     @torch.no_grad()

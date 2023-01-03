@@ -78,7 +78,7 @@ def report(result_dict, run_dir=None, filename="report"):
             f.writelines([line + "\n"])
 
 
-def set_seed(seed):
+def set_seed(seed, verbose=True):
     seed = int(seed)
     os.environ["PYTHONHASHSEED"] = str(seed)
     random.seed(seed)
@@ -88,3 +88,6 @@ def set_seed(seed):
     if importlib.util.find_spec("torch") is not None:
         import torch
         torch.manual_seed(seed)
+    if verbose:
+        print(f"=> random seed = {seed}")
+    return seed

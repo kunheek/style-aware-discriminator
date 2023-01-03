@@ -13,13 +13,13 @@ def concat_all_gather(tensor, world_size):
     return output
 
 
-def kaiming_init(mod):
-    assert isinstance(mod, nn.Module)
-    if isinstance(mod, (nn.Conv2d, nn.Linear)):
-        if mod.weight.requires_grad:
-            nn.init.kaiming_normal_(mod.weight, a=0.2, mode="fan_in")
-        if mod.bias is not None and mod.bias.requires_grad:
-            nn.init.zeros_(mod.bias)
+def kaiming_init(module):
+    assert isinstance(module, nn.Module)
+    if isinstance(module, (nn.Conv2d, nn.Linear)):
+        if module.weight.requires_grad:
+            nn.init.kaiming_normal_(module.weight, a=0.2, mode="fan_in")
+        if module.bias is not None and module.bias.requires_grad:
+            nn.init.zeros_(module.bias)
 
 
 def load_checkpoint(run_dir):
@@ -45,7 +45,7 @@ def unnormalize(image, to_uint8=False):
 
 
 @torch.no_grad()
-def update_average(net, net_ema, m=0.999):
+def accumulate_weights(net, net_ema, m=0.999):
     net = net.module if hasattr(net, "module") else net
     net_ema = net_ema.module if hasattr(net_ema, "module") else net_ema
     for p, p_ema in zip(net.parameters(), net_ema.parameters()):
