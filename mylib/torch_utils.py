@@ -5,6 +5,15 @@ import torch
 import torch.nn as nn
 
 
+def count_parameters(module):
+    assert isinstance(module, nn.Module)
+    num_params = 0
+    for p in module.parameters():
+        if p.requires_grad:
+            num_params += p.numel()
+    return num_params
+
+
 @torch.no_grad()
 def concat_all_gather(tensor, world_size):
     tensors_gather = [torch.ones_like(tensor) for _ in range(world_size)]
