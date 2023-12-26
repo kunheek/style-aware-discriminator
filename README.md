@@ -39,16 +39,16 @@ We provide the following pre-trained networks.
 
 |                    | Dataset     | Resolution | Method    | #images | OneDrive link |
 |--------------------|-------------|------------|-----------|---------|---------|
-| afhq-adain         | AFHQ        | $256^2$    | AdaIN     | 1.6 M   | [afhq-adain.pt](https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/Ecd6a64y6ZVCnpdLXB7Fb4sBiCpG48m2ncxAKR_aJpLWzA?e=1NTn3r) |
-| afhq-stylegan2     | AFHQ        | $256^2$    | StyleGAN2 | 5 M     | [afhq-stylegan2-5M.pt](https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/EX0JEvsGdQtJi-SeldrsMfUBngby8yxx_76pX2c8wtQidA?e=TmIRkC) |
-| afhqv2             | AFHQ v2     | $512^2$    | StyleGAN2 | 5 M     | [afhqv2-512x512-5M.pt](https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/Ec8tWDfZtK1Dmm_bw8azbi8BSfy_MUJkv8fbkE4_XxuhmQ?e=tNiGQp) |
-| celebahq-adain     | CelebA-HQ   | $256^2$    | AdaIN     | 1.6 M   | [celebahq-adain.pt](https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/EYOufvKpdMRDkavr2OfZbZwBiVN0XoksrtXEnn5krPh7UQ?e=7b3kzG) |
-| celebahq-stylegan2 | CelebA-HQ   | $256^2$    | StyleGAN2 | 5 M     | [celebahq-stylegan2-5M.pt](https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/EU8HgMXm9dNBj31LUIdc90kBQqEAJmmfkoAi4-BGRrzYAA?e=935Zrs) |
-| church             | LSUN church | $256^2$    | StyleGAN2 | 25 M    | [church-25M.pt](https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/Efn0z0mbDLZBobxByA6mKEEB-27zRfEprUt62-567oLWiQ?e=ZLM7YD) |
-| ffhq               | FFHQ        | $256^2$    | StyleGAN2 | 25 M    | [ffhq-25M.pt](https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/EfbsIjHka1JGsYHjRE2KrVEBwSjJ11ThbwKm5TVIpvUiAA?e=TgKMcP) |
-| flower             | Oxford 102  | $256^2$    | AdaIN     | 1.6 M   | [flower-256x256-adain.pt](https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/EeiK2iNEGMFPmYIsosF_D9ABd09_wN4MF3KCauLAQxgH0g?e=Jy5MJt) |
+| afhq-adain         | AFHQ        | $256^2$    | AdaIN     | 1.6 M   | [afhq-adain.pt](https://o365kaist-my.sharepoint.com/:u:/g/personal/kunheekim_office_kaist_ac_kr/EXXn2WmxRTNMuHwEip_7ISYBZP0yjIGLEdrnXRpWq_4_vw?e=Q79XI7) |
+| afhq-stylegan2     | AFHQ        | $256^2$    | StyleGAN2 | 5 M     | [afhq-stylegan2-5M.pt](https://o365kaist-my.sharepoint.com/:u:/g/personal/kunheekim_office_kaist_ac_kr/EYFJoQILF8ZPvVla5CUMzzcBKwFJKOnOYmS92VxE--0PQg?e=qqKov4) |
+| afhqv2             | AFHQ v2     | $512^2$    | StyleGAN2 | 5 M     | [afhqv2-512x512-5M.pt](https://o365kaist-my.sharepoint.com/:u:/g/personal/kunheekim_office_kaist_ac_kr/EQZWO4260J9DlRqJvGNLZ8gBJ_yzzPlXjiWFcDbxMdSIAA?e=qrmtaC) |
+| celebahq-adain     | CelebA-HQ   | $256^2$    | AdaIN     | 1.6 M   | [celebahq-adain.pt](https://o365kaist-my.sharepoint.com/:u:/g/personal/kunheekim_office_kaist_ac_kr/Ef6XeyapXGdDgxNz36PDYBwBgOdZ4KfZq3lSd1Ak0qAOKA?e=ORFas5) |
+| celebahq-stylegan2 | CelebA-HQ   | $256^2$    | StyleGAN2 | 5 M     | [celebahq-stylegan2-5M.pt](https://o365kaist-my.sharepoint.com/:u:/g/personal/kunheekim_office_kaist_ac_kr/EXmytLCR6-ZMkzcROcRmQk8Bcb4lbSMVmspydMV4CjNJuQ?e=0CrzKJ) |
+| church             | LSUN church | $256^2$    | StyleGAN2 | 25 M    | [church-25M.pt](https://o365kaist-my.sharepoint.com/:u:/g/personal/kunheekim_office_kaist_ac_kr/EagzHup1K2ZFsKVzwHswg4cBxkYphYVkxZjAtMirFqfb4Q?e=Fi82ap) |
+| ffhq               | FFHQ        | $256^2$    | StyleGAN2 | 25 M    | [ffhq-25M.pt](https://o365kaist-my.sharepoint.com/:u:/g/personal/kunheekim_office_kaist_ac_kr/EUREXa2eJlpLgbEUyr5usFoB5XAKGx_5enx42ozIeJoatQ?e=RoRRL4) |
+| flower             | Oxford 102  | $256^2$    | AdaIN     | 1.6 M   | [flower-256x256-adain.pt](https://o365kaist-my.sharepoint.com/:u:/g/personal/kunheekim_office_kaist_ac_kr/EWc9bn6MiSJAh_yzQxVvwUIBN8rckJ0mi_IO1BuIwYqmKA?e=yK87ZZ) |
 
-Here are links to all checkpoints ([checkpoints.zip](https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/EVWyUG_advFLiaUbSOVSdMgBTleTw1hufu1583aCnuBK_w?e=eNF1q0)) and MD5 file ([checkpoints.md5](https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/EUF8QeGwDBBFj5uwEabzKL8BGhp5bVWs5GtBey-Pw_DPcA?e=driDiN)).
+Here are links to all checkpoints ([checkpoints.zip](https://o365kaist-my.sharepoint.com/:u:/g/personal/kunheekim_office_kaist_ac_kr/EX0kn7Wq86BBsAXSu1SYZw4BOhQOVQ8Jua_jBSo8eDyvsQ?e=xGUvkP)) and MD5 file ([checkpoints.md5](https://o365kaist-my.sharepoint.com/:u:/g/personal/kunheekim_office_kaist_ac_kr/EQmPZINooDFEmCQivbQMMxgB-TzZPwaGsiupy1i8T2rToA?e=igYPBP)).
 If you have `wget` and `unzip` in your environment, you can also download the checkpoints using the following command:
 
 ```bash
@@ -62,7 +62,7 @@ See the table above or [download.sh](download.sh) for available checkpoints.
 
 ### Quantitative results
 
-(Optional) Computing inception stats requires long time. We provide pre-calculated stats for AFHQ 256 and CelebA-HQ 256 datasets ([link](https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/ETssKsRsOA5HlxJlP2mlL24Bdjp1zhpWGjtzmmD1TkWmgg?e=CLBE0X)). You can download and register them using the following command:
+(Optional) Computing inception stats requires long time. We provide pre-calculated stats for AFHQ 256 and CelebA-HQ 256 datasets ([link](https://o365kaist-my.sharepoint.com/:u:/g/personal/kunheekim_office_kaist_ac_kr/EcoST7aF9ppJvTEAK8135p8BZEDzz42Q4J9hTfSf99x6rA?e=OXWRgf)). You can download and register them using the following command:
 
 ```bash
 bash download.sh stats

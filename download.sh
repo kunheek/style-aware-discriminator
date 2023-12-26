@@ -11,55 +11,55 @@ command -v unzip >/dev/null 2>&1 || {
 FILE=$1
 
 if [ $FILE == "all" ]; then
-    wget -O stats.zip "https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/ETssKsRsOA5HlxJlP2mlL24Bdjp1zhpWGjtzmmD1TkWmgg?e=gN55yw&download=1"
+    wget -O stats.zip "https://o365kaist-my.sharepoint.com/:u:/g/personal/kunheekim_office_kaist_ac_kr/EcoST7aF9ppJvTEAK8135p8BZEDzz42Q4J9hTfSf99x6rA?e=cklSbP&download=1"
     unzip stats.zip -d assets
     rm stats.zip
 
-    wget -O checkpoints.zip "https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/EVWyUG_advFLiaUbSOVSdMgBTleTw1hufu1583aCnuBK_w?e=eNF1q0&download=1"
+    wget -O checkpoints.zip "https://o365kaist-my.sharepoint.com/:u:/g/personal/kunheekim_office_kaist_ac_kr/EX0kn7Wq86BBsAXSu1SYZw4BOhQOVQ8Jua_jBSo8eDyvsQ?e=vnmkH7&download=1"
     unzip checkpoints.zip
     rm checkpoints.zip
 
 elif [ $FILE == "stats" ]; then
-    wget -O stats.zip "https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/ETssKsRsOA5HlxJlP2mlL24Bdjp1zhpWGjtzmmD1TkWmgg?e=gN55yw&download=1"
+    wget -O stats.zip "https://o365kaist-my.sharepoint.com/:u:/g/personal/kunheekim_office_kaist_ac_kr/EcoST7aF9ppJvTEAK8135p8BZEDzz42Q4J9hTfSf99x6rA?e=cklSbP&download=1"
     unzip stats.zip -d assets
     rm stats.zip
 
 elif [ $FILE == "checkpoints" ]; then
-    wget -O checkpoints.zip "https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/EVWyUG_advFLiaUbSOVSdMgBTleTw1hufu1583aCnuBK_w?e=eNF1q0&download=1"
+    wget -O checkpoints.zip "https://o365kaist-my.sharepoint.com/:u:/g/personal/kunheekim_office_kaist_ac_kr/EX0kn7Wq86BBsAXSu1SYZw4BOhQOVQ8Jua_jBSo8eDyvsQ?e=vnmkH7&download=1"
     unzip checkpoints.zip
     rm checkpoints.zip
 
 elif  [ $FILE == "afhq-adain" ]; then
     mkdir checkpoints
-    wget -O checkpoints/afhq-adain.pt "https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/Ecd6a64y6ZVCnpdLXB7Fb4sBiCpG48m2ncxAKR_aJpLWzA?e=1NTn3r&download=1"
+    wget -O checkpoints/afhq-adain.pt "https://o365kaist-my.sharepoint.com/:u:/g/personal/kunheekim_office_kaist_ac_kr/EXXn2WmxRTNMuHwEip_7ISYBZP0yjIGLEdrnXRpWq_4_vw?e=Q79XI7&download=1"
 
 elif  [ $FILE == "afhq-stylegan2" ]; then
     mkdir checkpoints
-    wget -O checkpoints/afhq-stylegan2-5M.pt "https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/EX0JEvsGdQtJi-SeldrsMfUBngby8yxx_76pX2c8wtQidA?e=TmIRkC&download=1"
+    wget -O checkpoints/afhq-stylegan2-5M.pt "https://o365kaist-my.sharepoint.com/:u:/g/personal/kunheekim_office_kaist_ac_kr/EYFJoQILF8ZPvVla5CUMzzcBKwFJKOnOYmS92VxE--0PQg?e=qqKov4&download=1"
 
 elif  [ $FILE == "afhqv2" ]; then
     mkdir checkpoints
-    wget -O checkpoints/afhqv2-512x512-5M.pt "https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/Ec8tWDfZtK1Dmm_bw8azbi8BSfy_MUJkv8fbkE4_XxuhmQ?e=tNiGQp&download=1"
+    wget -O checkpoints/afhqv2-512x512-5M.pt "https://o365kaist-my.sharepoint.com/:u:/g/personal/kunheekim_office_kaist_ac_kr/EQZWO4260J9DlRqJvGNLZ8gBJ_yzzPlXjiWFcDbxMdSIAA?e=qrmtaC&download=1"
 
 elif  [ $FILE == "celebahq-adain" ]; then
     mkdir checkpoints
-    wget -O checkpoints/celebahq-adain.pt "https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/EYOufvKpdMRDkavr2OfZbZwBiVN0XoksrtXEnn5krPh7UQ?e=7b3kzG&download=1"
+    wget -O checkpoints/celebahq-adain.pt "https://o365kaist-my.sharepoint.com/:u:/g/personal/kunheekim_office_kaist_ac_kr/Ef6XeyapXGdDgxNz36PDYBwBgOdZ4KfZq3lSd1Ak0qAOKA?e=ORFas5&download=1"
 
 elif  [ $FILE == "celebahq-stylegan2" ]; then
     mkdir checkpoints
-    wget -O checkpoints/celebahq-stylegan2-5M.pt "https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/EU8HgMXm9dNBj31LUIdc90kBQqEAJmmfkoAi4-BGRrzYAA?e=935Zrs&download=1"
+    wget -O checkpoints/celebahq-stylegan2-5M.pt "https://o365kaist-my.sharepoint.com/:u:/g/personal/kunheekim_office_kaist_ac_kr/EXmytLCR6-ZMkzcROcRmQk8Bcb4lbSMVmspydMV4CjNJuQ?e=0CrzKJ&download=1"
 
 elif  [ $FILE == "church" ]; then
     mkdir checkpoints
-    wget -O checkpoints/church-25M.pt "https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/Efn0z0mbDLZBobxByA6mKEEB-27zRfEprUt62-567oLWiQ?e=ZLM7YD&download=1"
+    wget -O checkpoints/church-25M.pt "https://o365kaist-my.sharepoint.com/:u:/g/personal/kunheekim_office_kaist_ac_kr/EagzHup1K2ZFsKVzwHswg4cBxkYphYVkxZjAtMirFqfb4Q?e=Fi82ap&download=1"
 
 elif  [ $FILE == "ffhq" ]; then
     mkdir checkpionts
-    wget -O checkpoints/ffhq-25M.pt "https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/EfbsIjHka1JGsYHjRE2KrVEBwSjJ11ThbwKm5TVIpvUiAA?e=TgKMcP&download=1"
+    wget -O checkpoints/ffhq-25M.pt "https://o365kaist-my.sharepoint.com/:u:/g/personal/kunheekim_office_kaist_ac_kr/EUREXa2eJlpLgbEUyr5usFoB5XAKGx_5enx42ozIeJoatQ?e=RoRRL4&download=1"
 
 elif  [ $FILE == "flower" ]; then
     mkdir checkpionts
-    wget -O checkpionts/flower-256x256-adain.pt "https://postechackr-my.sharepoint.com/:u:/g/personal/kunkim_postech_ac_kr/EeiK2iNEGMFPmYIsosF_D9ABd09_wN4MF3KCauLAQxgH0g?e=Jy5MJt&download=1"
+    wget -O checkpionts/flower-256x256-adain.pt "https://o365kaist-my.sharepoint.com/:u:/g/personal/kunheekim_office_kaist_ac_kr/EWc9bn6MiSJAh_yzQxVvwUIBN8rckJ0mi_IO1BuIwYqmKA?e=yK87ZZ&download=1"
 
 else
     echo "Unsupported arguments. Available arguments are:"
