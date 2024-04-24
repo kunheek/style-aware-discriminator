@@ -8,3 +8,4 @@ opencv-python-headless
 packaging
 scikit-image
 torchinfo
+huggingface_hub

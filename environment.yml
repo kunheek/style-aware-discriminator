@@ -18,3 +18,4 @@ dependencies:
     - lmdb
     - lpips
     - torchinfo
+    - huggingface_hub
