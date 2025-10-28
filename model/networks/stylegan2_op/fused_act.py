@@ -4,16 +4,32 @@ import torch
 import torch.nn as nn
 from torch.autograd import Function
 from torch.nn import functional as F
-from torch.utils.cpp_extension import load
 
-module_path = os.path.dirname(__file__)
-fused = load(
-    "fused",
-    sources=[
-        os.path.join(module_path, "fused_bias_act.cpp"),
-        os.path.join(module_path, "fused_bias_act_kernel.cu"),
-    ],
-)
+# Disable custom CUDA kernels by default for compatibility
+# Set USE_CUSTOM_OPS=True to enable custom kernels (not recommended)
+USE_CUSTOM_OPS = os.environ.get('USE_CUSTOM_OPS', 'False').lower() == 'true'
+
+if USE_CUSTOM_OPS:
+    try:
+        from torch.utils.cpp_extension import load
+        module_path = os.path.dirname(__file__)
+        fused = load(
+            "fused",
+            sources=[
+                os.path.join(module_path, "fused_bias_act.cpp"),
+                os.path.join(module_path, "fused_bias_act_kernel.cu"),
+            ],
+            extra_cflags=["-std=c++17"],
+            extra_cuda_cflags=["-std=c++17"],
+        )
+        print("✓ Using custom CUDA kernels for fused operations")
+    except Exception as e:
+        print(f"✗ Failed to load custom CUDA kernels: {e}")
+        print("→ Falling back to pure PyTorch implementation")
+        USE_CUSTOM_OPS = False
+        fused = None
+else:
+    fused = None
 
 
 class FusedLeakyReLUFunctionBackward(Function):
@@ -90,20 +106,20 @@ class FusedLeakyReLUFunction(Function):
 
 
 def fused_leaky_relu(input, bias=None, negative_slope=0.2, scale=2 ** 0.5):
-    if input.device.type == "cpu":
+    # Use pure PyTorch implementation (compatible with all devices and torch versions)
+    if input.device.type == "cpu" or not USE_CUSTOM_OPS:
         if bias is not None:
             rest_dim = [1] * (input.ndim - bias.ndim - 1)
             return (
                 F.leaky_relu(
-                    input + bias.view(1, bias.shape[0], *rest_dim), negative_slope=0.2
+                    input + bias.view(1, bias.shape[0], *rest_dim), negative_slope=negative_slope
                 )
                 * scale
             )
-
         else:
-            return F.leaky_relu(input, negative_slope=0.2) * scale
-
+            return F.leaky_relu(input, negative_slope=negative_slope) * scale
     else:
+        # Use custom CUDA kernel (only if explicitly enabled)
         return FusedLeakyReLUFunction.apply(
             input.contiguous(), bias, negative_slope, scale
         )

@@ -4,16 +4,32 @@ from collections import abc
 import torch
 import torch.nn.functional as F
 from torch.autograd import Function
-from torch.utils.cpp_extension import load
 
-module_path = os.path.dirname(__file__)
-upfirdn2d_op = load(
-    "upfirdn2d",
-    sources=[
-        os.path.join(module_path, "upfirdn2d.cpp"),
-        os.path.join(module_path, "upfirdn2d_kernel.cu"),
-    ],
-)
+# Disable custom CUDA kernels by default for compatibility
+# Set USE_CUSTOM_OPS=True to enable custom kernels (not recommended)
+USE_CUSTOM_OPS = os.environ.get('USE_CUSTOM_OPS', 'False').lower() == 'true'
+
+if USE_CUSTOM_OPS:
+    try:
+        from torch.utils.cpp_extension import load
+        module_path = os.path.dirname(__file__)
+        upfirdn2d_op = load(
+            "upfirdn2d",
+            sources=[
+                os.path.join(module_path, "upfirdn2d.cpp"),
+                os.path.join(module_path, "upfirdn2d_kernel.cu"),
+            ],
+            extra_cflags=["-std=c++17"],
+            extra_cuda_cflags=["-std=c++17"],
+        )
+        print("✓ Using custom CUDA kernels for upfirdn2d operations")
+    except Exception as e:
+        print(f"✗ Failed to load custom CUDA kernels: {e}")
+        print("→ Falling back to pure PyTorch implementation")
+        USE_CUSTOM_OPS = False
+        upfirdn2d_op = None
+else:
+    upfirdn2d_op = None
 
 
 class UpFirDn2dBackward(Function):
@@ -155,10 +171,11 @@ def upfirdn2d(input, kernel, up=1, down=1, pad=(0, 0)):
     if len(pad) == 2:
         pad = (pad[0], pad[1], pad[0], pad[1])
 
-    if input.device.type == "cpu":
+    # Use pure PyTorch implementation (compatible with all devices and torch versions)
+    if input.device.type == "cpu" or not USE_CUSTOM_OPS:
         out = upfirdn2d_native(input, kernel, *up, *down, *pad)
-
     else:
+        # Use custom CUDA kernel (only if explicitly enabled)
         out = UpFirDn2d.apply(input, kernel, up, down, pad)
 
     return out

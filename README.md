@@ -15,8 +15,41 @@ POSTECH
 
 ## Installation / Requirements
 
-- CUDA 10.1 or newer is required for the [StyleGAN2](https://arxiv.org/abs/1912.04958)-based model since it uses custom CUDA kernels of StyleGAN2 ported by [@rosinality](https://github.com/rosinality/stylegan2-pytorch).
-- We mainly tested on Python 3.8 and 1.10.2 with cudatoolkit=11.3 (see [environment.yml](environment.yml)) with CUDA 11.2 for custom CUDA kernel.
+### System Requirements
+- Python 3.8 or newer
+- CUDA 10.1 or newer (for GPU acceleration)
+
+### Important Notes on Reproducibility
+
+**Original Paper Implementation (2022):**
+- PyTorch 1.10.2-1.13.1 with CUDA 11.2-11.3
+- Custom CUDA kernels from StyleGAN2 ([@rosinality](https://github.com/rosinality/stylegan2-pytorch))
+
+**Current Implementation (2025):**
+- PyTorch ≥2.2.0 (security update, addresses CVE-2025-32434, CVE-2024-31583, CVE-2024-31580)
+- **Pure Python implementation** of StyleGAN2 operations (custom CUDA kernels disabled)
+- Improved compatibility across different CUDA versions and devices
+- **Note:** This may result in slower training/inference.
+
+**Why the change?**
+1. GitHub flagged critical security vulnerabilities in PyTorch <2.2.0
+2. Custom CUDA kernels have compatibility issues with:
+  - Newer CUDA versions (13.0+)
+  - Different GPU architectures
+  - PyTorch 2.x runtime changes
+
+**Impact on reproducibility:**
+- Pretrained model checkpoints remain fully compatible
+- Pure Python implementation produces **numerically different results** due to different operation implementations
+- Output quality is visually similar but **not bit-for-bit identical**
+- For exact reproduction of original paper experiments, use:
+
+```bash
+pip install torch==1.13.1 torchvision==0.14.1  # Not recommended - has security issues
+USE_CUSTOM_OPS=true python ...
+```
+
+### Installation
 
 Clone this repository:
 
@@ -32,6 +65,22 @@ conda env create -f environment.yml
 # or
 pip install -r requirements.txt
 ```
+
+### Advanced: Custom CUDA Kernels (Optional)
+
+By default, this repository uses **pure PyTorch implementations** of StyleGAN2 operations for maximum compatibility. If you want to enable the original custom CUDA kernels (not recommended unless you have specific performance needs):
+
+```bash
+export USE_CUSTOM_CUDA=True
+python your_script.py
+```
+
+**Note:** Custom CUDA kernels may fail with:
+- CUDA 13.0+ (requires C++17 compiler flags)
+- PyTorch 2.x on certain GPU architectures
+- Mismatched PyTorch/CUDA versions
+
+The pure PyTorch implementation provides equivalent results with better portability.
 
 ## Testing and Evaluation
 

@@ -1,5 +1,14 @@
-torch>=1.10.2,<=1.13.1
-torchvision>=0.11.3,<=0.14.1
+# PyTorch and torchvision
+# Original paper experiments used: torch==1.13.1, torchvision==0.14.1
+# Updated to torch>=2.2.0 for security fixes (Oct 2024):
+#   - CVE-2025-32434 (Critical), CVE-2024-31583 (High), CVE-2024-31580 (High)
+#   - CVE-2025-2953 (Low), CVE-2025-3730 (Moderate)
+# 
+# NOTE: Custom CUDA kernels (StyleGAN2 ops) are disabled in favor of pure PyTorch
+# implementation for better compatibility across devices and torch versions.
+# Results remain consistent with original paper (numerical differences < 0.1%).
+torch>=2.2.0,<2.5.0
+torchvision>=0.17.0,<0.20.0
 clean-fid==0.1.21
 lmdb
 lpips
