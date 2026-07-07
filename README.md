@@ -1,6 +1,6 @@
-# A Style-aware Discriminator for Controllable Image Translation
+# A Style-Aware Discriminator for Controllable Image Translation
 
-[Kunhee Kim](https://www.kunheekim.xyz), Sanghun Park, Eunyeong Jeon, Taehun Kim, Daijin Kim  
+[Kunhee Kim](https://kunheek.github.io), Sanghun Park, Eunyeong Jeon, [Taehun Kim](https://github.com/plemeri), Daijin Kim  
 POSTECH
 
 <p align="center">
